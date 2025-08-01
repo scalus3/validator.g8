@@ -2,10 +2,7 @@ package validator
 
 import scalus.*
 import scalus.builtin.Data
-import scalus.builtin.FromDataInstances.given
-import scalus.ledger.api.v1.FromDataInstances.given
 import scalus.ledger.api.v3.*
-import scalus.ledger.api.v3.FromDataInstances.given
 import scalus.prelude.*
 import scalus.prelude.Option.*
 import scalus.prelude.Prelude.*
@@ -30,6 +27,7 @@ object $name;format="Camel"$ extends Validator:
     }
 
     override def reward(
+        redeemer: Data,
         stakingKey: Credential,
         tx: TxInfo
     ): Unit = {
@@ -37,6 +35,7 @@ object $name;format="Camel"$ extends Validator:
     }
 
     override def certify(
+        redeemer: Data,
         cert: TxCert,
         tx: TxInfo
     ): Unit = {
