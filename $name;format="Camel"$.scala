@@ -9,24 +9,24 @@ import scalus.prelude.Prelude.*
 
 @Compile
 object $name;format="Camel"$ extends Validator:
-    override def spend(
-        datum: Option[Data],
-        redeemer: Data,
-        tx: TxInfo,
-        ownRef: TxOutRef
-    ): Unit = {
+    override inline def spend(
+         datum: Option[Data],
+         redeemer: Data,
+         tx: TxInfo,
+         ownRef: TxOutRef
+         ): Unit = {
         fail("Empty Validator.spend")
     }
 
-    override def mint(
+    override inline def mint(
         redeemer: Data,
-        currencySymbol: CurrencySymbol,
+        policyId: PolicyId,
         tx: TxInfo
     ): Unit = {
         fail("Empty Validator.mint")
     }
 
-    override def reward(
+    override inline def reward(
         redeemer: Data,
         stakingKey: Credential,
         tx: TxInfo
@@ -34,7 +34,7 @@ object $name;format="Camel"$ extends Validator:
         fail("Empty Validator.reward")
     }
 
-    override def certify(
+    override inline def certify(
         redeemer: Data,
         cert: TxCert,
         tx: TxInfo
@@ -42,7 +42,7 @@ object $name;format="Camel"$ extends Validator:
         fail("Empty Validator.certify")
     }
 
-    override def vote(
+    override inline def vote(
         redeemer: Data,
         voter: Voter,
         tx: TxInfo
@@ -50,7 +50,7 @@ object $name;format="Camel"$ extends Validator:
         fail("Empty Validator.vote")
     }
 
-    override def propose(
+    override inline def propose(
         proposalProcedure: ProposalProcedure,
         tx: TxInfo
     ): Unit = {
