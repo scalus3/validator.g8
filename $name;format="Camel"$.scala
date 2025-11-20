@@ -4,56 +4,54 @@ import scalus.*
 import scalus.builtin.Data
 import scalus.ledger.api.v3.*
 import scalus.prelude.*
-import scalus.prelude.Option.*
-import scalus.prelude.Prelude.*
 
 @Compile
-object $name;format="Camel"$ extends Validator:
-    override inline def spend(
+object $name;format="Camel"$ extends Validator {
+    inline override def spend(
          datum: Option[Data],
          redeemer: Data,
          tx: TxInfo,
          ownRef: TxOutRef
-         ): Unit = {
-        fail("Empty Validator.spend")
+    ): Unit = {
+        fail("Implement spend logic")
     }
 
-    override inline def mint(
+    inline override def mint(
         redeemer: Data,
         policyId: PolicyId,
         tx: TxInfo
     ): Unit = {
-        fail("Empty Validator.mint")
+        fail("Implement minting logic")
     }
 
-    override inline def reward(
+    inline override def reward(
         redeemer: Data,
         stakingKey: Credential,
         tx: TxInfo
     ): Unit = {
-        fail("Empty Validator.reward")
+        fail("Implement withdraw rewards logic")
     }
 
-    override inline def certify(
+    inline override def certify(
         redeemer: Data,
         cert: TxCert,
         tx: TxInfo
     ): Unit = {
-        fail("Empty Validator.certify")
+        fail("Implement publish certificates logic")
     }
 
-    override inline def vote(
+    inline override def vote(
         redeemer: Data,
         voter: Voter,
         tx: TxInfo
     ): Unit = {
-        fail("Empty Validator.vote")
+        fail("Implement voting logic")
     }
 
-    override inline def propose(
+    inline override def propose(
         proposalProcedure: ProposalProcedure,
         tx: TxInfo
     ): Unit = {
-        fail("Empty Validator.propose")
+        fail("Implement propose logic")
     }
-
+}

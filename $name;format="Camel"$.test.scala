@@ -1,16 +1,17 @@
 package validator
 
-import munit.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 import scalus.*
 import scalus.Compiler.compile
 import scalus.builtin.ByteString.*
+import scalus.builtin.Data
 import scalus.builtin.Data.toData
 import scalus.builtin.{ByteString, Data}
 import scalus.ledger.api.v1.PubKeyHash
 import scalus.ledger.api.v3.*
 import scalus.ledger.api.v3.given
 import scalus.prelude.*
-import scalus.testkit.*
+import scalus.testkit.ScalusTest
 import scalus.uplc.*
 import scalus.uplc.eval.*
 
