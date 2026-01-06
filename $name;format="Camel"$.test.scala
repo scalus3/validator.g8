@@ -10,7 +10,7 @@ import scalus.ledger.api.v1.PubKeyHash
 import scalus.ledger.api.v3.*
 import scalus.ledger.api.v3.given
 import scalus.prelude.*
-import scalus.testkit.ScalusTest
+import scalus.testing.kit.ScalusTest
 
 import scala.language.implicitConversions
 
