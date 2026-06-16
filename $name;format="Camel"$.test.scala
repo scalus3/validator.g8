@@ -1,34 +1,39 @@
 package validator
 
 import org.scalatest.funsuite.AnyFunSuite
-import scalus.*
-import scalus.Compiler.compile
-import scalus.builtin.ByteString.*
-import scalus.builtin.Data
-import scalus.builtin.Data.toData
-import scalus.ledger.api.v1.PubKeyHash
-import scalus.ledger.api.v3.*
-import scalus.ledger.api.v3.given
-import scalus.prelude.*
+import scalus.compiler.compile
+import scalus.uplc.builtin.ByteString.*
+import scalus.uplc.builtin.Data.toData
+import scalus.cardano.onchain.plutus.v1.PubKeyHash
+import scalus.cardano.onchain.plutus.prelude.*
 import scalus.testing.kit.ScalusTest
-
-import scala.language.implicitConversions
 
 class $name;format="Camel"$Test extends AnyFunSuite with ScalusTest {
 
-    test("$name;format="Camel"$ should work correctly") {
-
-        // building htlc-like script context
-        val inputs = List(
-          makePubKeyHashInput(hex"1234567890abcdef1234567890abcdef1234567890abcdef12345678", 0),
+    private val owner =
+        PubKeyHash(
+          hex"1234567890abcdef1234567890abcdef1234567890abcdef12345678"
         )
-        val context = ScriptContext(
-          txInfo = TxInfo(inputs = inputs, id = random[TxId]),
-          scriptInfo = ScriptInfo.SpendingScript(txOutRef = inputs.head.outRef)
+
+    test("$name;format="Camel"$ succeeds when signed by the owner") {
+        val context = makeSpendingScriptContext(
+          datum = owner.toData,
+          redeemer = BigInt(0).toData,
+          signatories = List(owner)
         )
         // running spend validator
         val result = compile($name;format="Camel"$.validate).runScript(context)
-        // should fail, since spend logic isn't implemented
         assert(result.isSuccess)
+    }
+
+    test("$name;format="Camel"$ fails when the owner did not sign") {
+        val context = makeSpendingScriptContext(
+          datum = owner.toData,
+          redeemer = BigInt(0).toData,
+          signatories = List.empty
+        )
+
+        val result = compile($name;format="Camel"$.validate).runScript(context)
+        assert(!result.isSuccess)
     }
 }
