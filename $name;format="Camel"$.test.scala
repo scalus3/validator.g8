@@ -3,42 +3,60 @@ package validator
 import org.scalatest.funsuite.AnyFunSuite
 import scalus.compiler.Options
 import scalus.uplc.PlutusV3
-import scalus.uplc.builtin.ByteString.*
 import scalus.uplc.builtin.Data.toData
+import scalus.cardano.ledger.*
+import scalus.cardano.node.Emulator
+import scalus.cardano.txbuilder.RedeemerPurpose.ForSpend
+import scalus.cardano.txbuilder.{TxBuilder, txBuilder}
 import scalus.cardano.onchain.plutus.v1.PubKeyHash
-import scalus.cardano.onchain.plutus.prelude.*
-import scalus.testing.kit.ScalusTest
+import scalus.testing.kit.Party.{Alice, Bob}
+import scalus.testing.kit.{ScalusTest, TestUtil}
+import scalus.testing.kit.TestUtil.getScriptContextV3
+import scalus.uplc.eval.Result
+import scalus.utils.await
 
 class $name;format="Camel"$Test extends AnyFunSuite, ScalusTest {
 
     private given Options = Options.default
+    private given env: CardanoInfo = TestUtil.testEnvironment
 
-    private val owner =
-        PubKeyHash(
-          hex"1234567890abcdef1234567890abcdef1234567890abcdef12345678"
-        )
+    private val contract = PlutusV3.compile($name;format="Camel"$.validate)
+    private val scriptAddress = contract.address(env.network)
 
-    private val compiled = PlutusV3.compile($name;format="Camel"$.validate)
+    /** Locks a UTxO at the contract owned by Alice, then builds a draft
+      * spending transaction signed by `signer` and evaluates the validator on
+      * its context.
+      */
+    private def spendSignedBy(signer: AddrKeyHash): Result = {
+        val provider = Emulator.withAddresses(Seq(Alice.address))
+
+        val fundingUtxos =
+            provider.findUtxos(Alice.address).await().toOption.get
+        val lockTx = TxBuilder(env)
+            .payTo(scriptAddress, Value.ada(10), PubKeyHash(Alice.addrKeyHash))
+            .complete(availableUtxos = fundingUtxos, sponsor = Alice.address)
+            .sign(Alice.signer)
+            .transaction
+        assert(provider.submit(lockTx).await().isRight)
+        val lockedUtxo = Utxo(lockTx.utxos.find { case (_, out) =>
+            out.address == scriptAddress
+        }.get)
+
+        val scriptContext = txBuilder
+            .spend(lockedUtxo, BigInt(0), contract)
+            .requireSignature(signer)
+            .payTo(Alice.address, lockedUtxo.output.value)
+            .draft
+            .getScriptContextV3(provider.utxos, ForSpend(lockedUtxo.input))
+
+        contract.program.runWithDebug(scriptContext)
+    }
 
     test("$name;format="Camel"$ succeeds when signed by the owner") {
-        val context = makeSpendingScriptContext(
-          datum = owner.toData,
-          redeemer = BigInt(0).toData,
-          signatories = List(owner)
-        )
-
-        val result = compiled.program.runWithDebug(context)
-        assert(result.isSuccess)
+        assert(spendSignedBy(Alice.addrKeyHash).isSuccess)
     }
 
     test("$name;format="Camel"$ fails when the owner did not sign") {
-        val context = makeSpendingScriptContext(
-          datum = owner.toData,
-          redeemer = BigInt(0).toData,
-          signatories = List.empty
-        )
-
-        val result = compiled.program.runWithDebug(context)
-        assert(!result.isSuccess)
+        assert(!spendSignedBy(Bob.addrKeyHash).isSuccess)
     }
 }
