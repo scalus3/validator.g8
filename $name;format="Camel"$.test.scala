@@ -9,7 +9,7 @@ import scalus.cardano.onchain.plutus.v1.PubKeyHash
 import scalus.cardano.onchain.plutus.prelude.*
 import scalus.testing.kit.ScalusTest
 
-class $name;format="Camel"$Test extends AnyFunSuite with ScalusTest {
+class $name;format="Camel"$Test extends AnyFunSuite, ScalusTest {
 
     private given Options = Options.default
 

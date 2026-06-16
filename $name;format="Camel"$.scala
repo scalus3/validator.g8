@@ -16,12 +16,14 @@ import scalus.cardano.onchain.plutus.prelude.*
   * fails by default.
   */
 @Compile
-object $name;format="Camel"$ extends Validator:
+object $name;format="Camel"$ extends Validator {
     inline override def spend(
         datum: Option[Data],
         redeemer: Data,
         tx: TxInfo,
         ownRef: TxOutRef
-    ): Unit =
+    ): Unit = {
         val owner = datum.getOrFail("Datum not found").to[PubKeyHash]
         require(tx.isSignedBy(owner), "Must be signed by the owner")
+    }
+}
