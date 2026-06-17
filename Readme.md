@@ -30,13 +30,25 @@ sbt test
 sbt compile
 ```
 
+### Test backends
+
+`$name;format="Camel"$Integration.test.scala` runs against a selectable backend:
+
+```sh
+sbt emulator   # in-memory emulator (default, fast — same as `sbt test`)
+sbt devkit     # a local Yaci DevKit node (requires a running Docker daemon)
+```
+
+(`SCALUS_TEST_ENV=yaci sbt test` works too.)
+
 ## Project layout
 
 Both tools share the same flat source layout: sources live at the project root and test
 sources use the `.test.scala` suffix.
 
 - `$name;format="Camel"$.scala` — the on-chain validator
-- `$name;format="Camel"$.test.scala` — tests using `scalus-testkit`'s `ScalusTest`
+- `$name;format="Camel"$.test.scala` — unit tests using `scalus-testkit`'s `ScalusTest`
+- `$name;format="Camel"$Integration.test.scala` — submit-based tests (emulator / Yaci DevKit)
 - `$name;format="Camel"$Contract.scala` — the `Contract` (compiled script + CIP-57 blueprint)
 - `project.scala` — Scala CLI build configuration (Scala version, Scalus compiler plugin, deps)
 - `build.sbt` — sbt build configuration (same versions and deps)
