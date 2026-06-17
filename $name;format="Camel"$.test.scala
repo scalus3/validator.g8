@@ -12,7 +12,7 @@ import scalus.cardano.onchain.plutus.v1.PubKeyHash
 import scalus.testing.kit.Party.{Alice, Bob}
 import scalus.testing.kit.{ScalusTest, TestUtil}
 import scalus.testing.kit.TestUtil.getScriptContextV3
-import scalus.uplc.eval.Result
+import scalus.uplc.eval.{ProfileFormatter, Result}
 import scalus.utils.await
 
 class $name;format="Camel"$Test extends AnyFunSuite, ScalusTest {
@@ -22,6 +22,11 @@ class $name;format="Camel"$Test extends AnyFunSuite, ScalusTest {
 
     private val contract = PlutusV3.compile($name;format="Camel"$.validate)
     private val scriptAddress = contract.address(env.network)
+
+    // Enabled by `sbt profile` (or SCALUS_PROFILE=1); writes target/profile.html.
+    private val profilingEnabled =
+        sys.props.get("scalus.profile").contains("true") ||
+            sys.env.get("SCALUS_PROFILE").contains("1")
 
     /** Locks a UTxO at the contract owned by Alice, then builds a draft
       * spending transaction signed by `signer` and evaluates the validator on
@@ -49,7 +54,18 @@ class $name;format="Camel"$Test extends AnyFunSuite, ScalusTest {
             .draft
             .getScriptContextV3(provider.utxos, ForSpend(lockedUtxo.input))
 
-        contract.program.runWithDebug(scriptContext)
+        val result = contract.program.runWithDebug(scriptContext)
+        if profilingEnabled && result.isSuccess then
+            contract.program.runWithProfile(scriptContext).profile.foreach {
+                p =>
+                    ProfileFormatter.writeHtml(
+                      p,
+                      "target/profile.html",
+                      title = "$name;format="Camel"$"
+                    )
+                    info("Wrote profile to target/profile.html")
+            }
+        result
     }
 
     test("$name;format="Camel"$ succeeds when signed by the owner") {
