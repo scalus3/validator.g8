@@ -23,10 +23,12 @@ class $name;format="Camel"$Test extends AnyFunSuite, ScalusTest {
     private val contract = PlutusV3.compile($name;format="Camel"$.validate)
     private val scriptAddress = contract.address(env.network)
 
-    // Enabled by `sbt profile` (or SCALUS_PROFILE=1); writes target/profile.html.
+    // Enabled by SCALUS_PROFILE=1 (or -Dscalus.profile=true); writes target/profile.html.
     private val profilingEnabled =
-        sys.props.get("scalus.profile").contains("true") ||
-            sys.env.get("SCALUS_PROFILE").contains("1")
+        sys.env
+            .get("SCALUS_PROFILE")
+            .orElse(sys.props.get("scalus.profile"))
+            .exists(v => v == "1" || v.equalsIgnoreCase("true"))
 
     /** Locks a UTxO at the contract owned by Alice, then builds a draft
       * spending transaction signed by `signer` and evaluates the validator on
