@@ -9,7 +9,7 @@ import scalus.cardano.node.Emulator
 import scalus.cardano.txbuilder.RedeemerPurpose.ForSpend
 import scalus.cardano.txbuilder.{TxBuilder, txBuilder}
 import scalus.cardano.onchain.plutus.v1.PubKeyHash
-import scalus.testing.kit.Party.{Alice, Bob}
+import scalus.testing.kit.Party.Alice
 import scalus.testing.kit.{ScalusTest, TestUtil}
 import scalus.testing.kit.TestUtil.getScriptContextV3
 import scalus.uplc.eval.{ProfileFormatter, Result}
@@ -30,11 +30,10 @@ class $name;format="Camel"$Test extends AnyFunSuite, ScalusTest {
             .orElse(sys.props.get("scalus.profile"))
             .exists(v => v == "1" || v.equalsIgnoreCase("true"))
 
-    /** Locks a UTxO at the contract owned by Alice, then builds a draft
-      * spending transaction signed by `signer` and evaluates the validator on
-      * its context.
+    /** Locks a UTxO at the contract and evaluates the spend validator on a
+      * draft spending transaction's script context.
       */
-    private def spendSignedBy(signer: AddrKeyHash): Result = {
+    private def evalSpend(): Result = {
         val provider = Emulator.withAddresses(Seq(Alice.address))
 
         val fundingUtxos =
@@ -51,13 +50,12 @@ class $name;format="Camel"$Test extends AnyFunSuite, ScalusTest {
 
         val scriptContext = txBuilder
             .spend(lockedUtxo, BigInt(0), contract)
-            .requireSignature(signer)
+            .requireSignature(Alice.addrKeyHash)
             .payTo(Alice.address, lockedUtxo.output.value)
             .draft
             .getScriptContextV3(provider.utxos, ForSpend(lockedUtxo.input))
 
-        val result = contract.program.runWithDebug(scriptContext)
-        if profilingEnabled && result.isSuccess then
+        if profilingEnabled then
             contract.program.runWithProfile(scriptContext).profile.foreach {
                 p =>
                     ProfileFormatter.writeHtml(
@@ -67,14 +65,11 @@ class $name;format="Camel"$Test extends AnyFunSuite, ScalusTest {
                     )
                     info("Wrote profile to target/profile.html")
             }
-        result
+        contract.program.runWithDebug(scriptContext)
     }
 
-    test("$name;format="Camel"$ succeeds when signed by the owner") {
-        assert(spendSignedBy(Alice.addrKeyHash).isSuccess)
-    }
-
-    test("$name;format="Camel"$ fails when the owner did not sign") {
-        assert(!spendSignedBy(Bob.addrKeyHash).isSuccess)
+    test("$name;format="Camel"$ spend stub is rejected until implemented") {
+        // Replace the `spend` body in $name;format="Camel"$.scala, then assert success here.
+        assert(evalSpend().isFailure)
     }
 }

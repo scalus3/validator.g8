@@ -2,18 +2,15 @@ package validator
 
 import scalus.compiler.Compile
 import scalus.uplc.builtin.Data
+import scalus.cardano.onchain.plutus.v1.PolicyId
 import scalus.cardano.onchain.plutus.v3.*
 import scalus.cardano.onchain.plutus.prelude.*
 
-/** A minimal Plutus V3 spending validator.
+/** A Plutus V3 validator scaffold.
   *
-  * It allows the locked UTxO to be spent only when the transaction is signed by
-  * the owner whose public key hash is stored in the datum. Replace this body
-  * with your own contract logic.
-  *
-  * A `Validator` can also implement `mint`, `reward`, `certify`, `vote` and
-  * `propose` for the other script purposes; any purpose you do not override
-  * fails by default.
+  * Each script purpose is stubbed and fails until you implement it. Fill in the
+  * bodies you need and remove the ones you don't (any purpose left as `fail`
+  * simply rejects).
   */
 @Compile
 object $name;format="Camel"$ extends Validator {
@@ -22,8 +19,34 @@ object $name;format="Camel"$ extends Validator {
         redeemer: Data,
         tx: TxInfo,
         ownRef: TxOutRef
-    ): Unit = {
-        val owner = datum.getOrFail("Datum not found").to[PubKeyHash]
-        require(tx.isSignedBy(owner), "Must be signed by the owner")
-    }
+    ): Unit = fail("Empty Validator.spend")
+
+    inline override def mint(
+        redeemer: Data,
+        policyId: PolicyId,
+        tx: TxInfo
+    ): Unit = fail("Empty Validator.mint")
+
+    inline override def reward(
+        redeemer: Data,
+        stakingKey: Credential,
+        tx: TxInfo
+    ): Unit = fail("Empty Validator.reward")
+
+    inline override def certify(
+        redeemer: Data,
+        cert: TxCert,
+        tx: TxInfo
+    ): Unit = fail("Empty Validator.certify")
+
+    inline override def vote(
+        redeemer: Data,
+        voter: Voter,
+        tx: TxInfo
+    ): Unit = fail("Empty Validator.vote")
+
+    inline override def propose(
+        proposalProcedure: ProposalProcedure,
+        tx: TxInfo
+    ): Unit = fail("Empty Validator.propose")
 }

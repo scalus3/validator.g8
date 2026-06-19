@@ -2,9 +2,9 @@
 
 A [Scalus](https://scalus.org) smart contract starter generated from the `validator.g8` template.
 
-The contract is a Plutus V3 spending validator (`$name;format="Camel"$.scala`) that only allows the
-locked UTxO to be spent when the transaction is signed by the owner stored in the datum. Replace its
-body with your own logic.
+`$name;format="Camel"$.scala` is a Plutus V3 validator scaffold: every script purpose
+(`spend`, `mint`, `reward`, `certify`, `vote`, `propose`) is stubbed and fails until you implement
+it. Fill in the bodies you need and remove the rest.
 
 ## Prerequisites
 

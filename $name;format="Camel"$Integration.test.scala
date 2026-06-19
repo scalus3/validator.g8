@@ -77,13 +77,10 @@ class $name;format="Camel"$IntegrationTest extends AnyFunSuite, IntegrationTest 
         }.toOption.exists(_.isRight)
     }
 
-    test(s"[\$testEnvName] owner can spend") {
+    test(s"[\$testEnvName] spend is rejected (stub)") {
+        // The `spend` stub fails, so the node rejects the spend. Implement
+        // $name;format="Camel"$.spend, then assert the spend is accepted here.
         val ctx = createTestContext()
-        assert(lockThenSpend(ctx, owner = ctx.alice, spender = ctx.alice))
-    }
-
-    test(s"[\$testEnvName] a non-owner cannot spend") {
-        val ctx = createTestContext()
-        assert(!lockThenSpend(ctx, owner = ctx.alice, spender = ctx.bob))
+        assert(!lockThenSpend(ctx, owner = ctx.alice, spender = ctx.alice))
     }
 }

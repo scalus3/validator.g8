@@ -15,8 +15,7 @@ object $name;format="Camel"$Contract extends Contract {
     lazy val compiled = PlutusV3.compile($name;format="Camel"$.validate)
     lazy val blueprint = Blueprint.plutusV3[PubKeyHash, Unit](
       title = "$name;format="Camel"$",
-      description =
-          "A minimal spending validator that requires the owner's signature.",
+      description = "A Plutus V3 validator scaffold.",
       version = "1.0.0",
       license = Some("Apache License Version 2.0"),
       compiled = compiled
